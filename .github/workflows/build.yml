@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. Menghapus file lama agar hemat memori (Penting untuk server gratisan)
+      # Bersihkan disk space (Pencegahan error memori penuh)
       - name: Free Disk Space
         run: |
           sudo rm -rf /usr/share/dotnet
@@ -29,9 +29,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 2. INSTALL DEPENDENCIES LENGKAP
-      # Saya menambahkan: automake, gettext, autopoint (wajib untuk compile Android)
-      # Saya menambahkan: libjpeg-dev, libfreetype6-dev (wajib untuk compile Pillow/Gambar)
+      # Install Dependencies (Versi Lengkap)
       - name: Install Dependencies
         run: |
           sudo apt-get update
@@ -44,14 +42,23 @@ jobs:
       - name: Install Buildozer
         run: pip install --upgrade buildozer cython
 
-      # 3. Jalankan Buildozer
-      # yes | digunakan untuk menyetujui lisensi SDK otomatis
-      - name: Build APK
-        run: yes | buildozer android debug
+      # --- BAGIAN PENTING: LOGGING ---
+      # 1. 'set -o pipefail' memastikan jika buildozer gagal, statusnya tetap 'gagal' (merah)
+      # 2. '2>&1 | tee build_log.txt' menyalin output layar ke file text
+      - name: Build APK with Logging
+        shell: bash
+        run: |
+          set -o pipefail
+          yes | buildozer android debug 2>&1 | tee build_log.txt
 
-      - name: Upload artifacts
+      # --- BAGIAN PENTING: UPLOAD ---
+      # 'if: always()' artinya: TETAP UPLOAD file ini walaupun langkah sebelumnya ERROR/GAGAL.
+      - name: Upload Logs and APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: package
-          path: bin/*.apk
+          path: |
+            bin/*.apk
+            build_log.txt
           compression-level: 0
