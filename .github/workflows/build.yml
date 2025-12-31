@@ -1,0 +1,26 @@
+name: CI
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Langkah ini akan menjalankan Buildozer untuk membuat APK
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action-v1@v3
+        id: buildozer
+        with:
+          command: buildozer android debug
+          buildozer_version: master
+
+      # Langkah ini akan meng-upload APK agar bisa Anda download
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: package
+          path: bin/*.apk
