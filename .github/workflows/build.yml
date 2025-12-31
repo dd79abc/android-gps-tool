@@ -8,22 +8,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Menggunakan versi checkout terbaru (v4)
+      # 1. Ambil kode Anda (Versi V4 Terbaru)
       - uses: actions/checkout@v4
 
-      # Menggunakan Buildozer action
-      - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action-v1@v3
-        id: buildozer
+      # 2. Siapkan Java (Dibutuhkan Android)
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          command: buildozer android debug
-          buildozer_version: master
+          distribution: 'temurin'
+          java-version: '17'
 
-      # PERBAIKAN PENTING: Menggunakan upload-artifact v4
+      # 3. Siapkan Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # 4. Install Dependencies Linux yang Wajib untuk Buildozer
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libltdl-dev libffi-dev libssl-dev python3-dev git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libgstreamer1.0-dev
+
+      # 5. Install Buildozer
+      - name: Install Buildozer
+        run: pip install --upgrade buildozer cython
+
+      # 6. Jalankan Buildozer (Membuat APK)
+      - name: Build APK
+        run: yes | buildozer android debug
+
+      # 7. Upload Hasil APK (Versi V4 Terbaru - Anti Error)
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: package
           path: bin/*.apk
-          compression-level: 0 # Agar upload lebih cepat
-          overwrite: true
+          compression-level: 0
