@@ -10,6 +10,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 1. Menghapus file lama agar hemat memori (Penting untuk server gratisan)
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -21,17 +29,23 @@ jobs:
         with:
           python-version: '3.10'
 
-      # PERBAIKAN DI SINI: 
-      # Menghapus 'libtinfo5' dan mengganti 'libncurses5-dev' menjadi 'libncurses-dev'
+      # 2. INSTALL DEPENDENCIES LENGKAP
+      # Saya menambahkan: automake, gettext, autopoint (wajib untuk compile Android)
+      # Saya menambahkan: libjpeg-dev, libfreetype6-dev (wajib untuk compile Pillow/Gambar)
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libltdl-dev libffi-dev libssl-dev python3-dev git zip unzip autoconf libtool pkg-config zlib1g-dev cmake libncurses-dev
+          sudo apt-get install -y \
+            build-essential libltdl-dev libffi-dev libssl-dev python3-dev \
+            git zip unzip autoconf libtool pkg-config zlib1g-dev cmake \
+            libncurses-dev automake gettext autopoint \
+            libjpeg-dev libfreetype6-dev
 
       - name: Install Buildozer
         run: pip install --upgrade buildozer cython
 
-      # Menambahkan --accept-sdk-license otomatis agar tidak macet
+      # 3. Jalankan Buildozer
+      # yes | digunakan untuk menyetujui lisensi SDK otomatis
       - name: Build APK
         run: yes | buildozer android debug
 
