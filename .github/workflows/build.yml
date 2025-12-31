@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Bersihkan disk space (Pencegahan error memori penuh)
+      # Bersihkan disk space
       - name: Free Disk Space
         run: |
           sudo rm -rf /usr/share/dotnet
@@ -29,7 +29,8 @@ jobs:
         with:
           python-version: '3.10'
 
-      # Install Dependencies (Versi Lengkap)
+      # PERBAIKAN DI SINI:
+      # Saya menambahkan 'clang', 'llvm', 'lld' agar error "C++ compiler not found" hilang.
       - name: Install Dependencies
         run: |
           sudo apt-get update
@@ -37,22 +38,20 @@ jobs:
             build-essential libltdl-dev libffi-dev libssl-dev python3-dev \
             git zip unzip autoconf libtool pkg-config zlib1g-dev cmake \
             libncurses-dev automake gettext autopoint \
-            libjpeg-dev libfreetype6-dev
+            libjpeg-dev libfreetype6-dev \
+            clang llvm lld
 
       - name: Install Buildozer
         run: pip install --upgrade buildozer cython
 
-      # --- BAGIAN PENTING: LOGGING ---
-      # 1. 'set -o pipefail' memastikan jika buildozer gagal, statusnya tetap 'gagal' (merah)
-      # 2. '2>&1 | tee build_log.txt' menyalin output layar ke file text
+      # Build dengan Log
       - name: Build APK with Logging
         shell: bash
         run: |
           set -o pipefail
           yes | buildozer android debug 2>&1 | tee build_log.txt
 
-      # --- BAGIAN PENTING: UPLOAD ---
-      # 'if: always()' artinya: TETAP UPLOAD file ini walaupun langkah sebelumnya ERROR/GAGAL.
+      # Upload Hasil (APK + Log)
       - name: Upload Logs and APK
         if: always()
         uses: actions/upload-artifact@v4
