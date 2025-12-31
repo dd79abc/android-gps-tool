@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Kita update ini ke v4 (terbaru)
+      # Menggunakan versi checkout terbaru (v4)
       - uses: actions/checkout@v4
 
-      # Langkah Buildozer (Kita pastikan versinya benar)
+      # Menggunakan Buildozer action
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action-v1@v3
         id: buildozer
@@ -19,10 +19,11 @@ jobs:
           command: buildozer android debug
           buildozer_version: master
 
-      # INI PERBAIKAN UTAMANYA: Mengganti v2 menjadi v4
+      # PERBAIKAN PENTING: Menggunakan upload-artifact v4
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: package
           path: bin/*.apk
-          compression-level: 0 # Opsional: agar upload lebih cepat tanpa kompresi
+          compression-level: 0 # Agar upload lebih cepat
+          overwrite: true
