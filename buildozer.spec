@@ -16,12 +16,11 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 
 # (str) Application versioning (method 1)
-# INI YANG TADI HILANG DAN MENYEBABKAN ERROR
 version = 0.1
 
 # (list) Application requirements
-# Kita tambahkan 'android' ke dalam requirements
-requirements = python3,kivy==2.3.0,pillow,android
+# PERHATIKAN BARIS INI: Ini bagian yang diubah
+requirements = python3,kivy==2.3.0,pillow>=10.2.0,android
 
 # (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
 orientation = portrait
@@ -29,12 +28,7 @@ orientation = portrait
 # (list) Permissions
 android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE
 
-# --- Bagian Icon (Saya matikan dulu pakai # agar tidak error jika file belum ada) ---
-# presplash.filename = %(source.dir)s/data/presplash.png
-# icon.filename = %(source.dir)s/data/icon.png
-
 # (int) Android API to use
-# Kita set ke versi stabil agar aman
 android.api = 33
 android.minapi = 21
 
